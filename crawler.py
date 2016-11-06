@@ -50,7 +50,7 @@ def clean_links(base_url, dirty_links):
         if has_linked.get(cleaned, False):
             continue
         if not has_html(cleaned):
-            print("BUT THIS ISN'T AN HTML FILE!!!!!!!!!!")
+            print(cleaned, "BUT THIS ISN'T AN HTML FILE!!!!!!!!!!")
             continue
         full_links.append(cleaned)
         has_linked[cleaned] = True
@@ -61,15 +61,15 @@ def has_html(url):
     .xhtml, or .php, requires a full url"""
     #BUG: files like https://github.com/rivergillis/crawler/blob/master/crawler.py are still html
 
-    print("checking", url)
     good_filetypes = [".html", ".xhtml", ".php"]
     pattern = re.compile(r'\.\w+\/*')
-    tld_split = url.split(get_tld(url))
-    print(tld_split)
+    url_tld = get_tld(url, fail_silently=True)
+    if not url_tld:
+        return False
+    tld_split = url.split(url_tld)
     if len(tld_split) > 1:
         after_tld = tld_split[1]
         extensions = re.findall(pattern, after_tld)
-        print(extensions)
 
         if not extensions:
             return True
@@ -78,7 +78,6 @@ def has_html(url):
         if extensions[-1] not in good_filetypes:
             return False
     return True
-print(has_html("https://help.github.com/enterprise/2.7/user"))
 
 have_visited = {}
 
@@ -104,6 +103,6 @@ def all_links(input_url):
 
     return full_links
 
-#all_links("https://help.github.com/enterprise/2.7/user")
+all_links("https://help.github.com/enterprise/2.7/user")
 #url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 #all_links(url)
