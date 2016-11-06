@@ -1,19 +1,13 @@
-# returns a list of all of the links from a webpage
 from bs4 import BeautifulSoup, SoupStrainer
 from tld import get_tld
 import requests
 import re
 
 def get_root_url(link):
-    """Given a url in the form https://help.github.com/enterprise/2.7/user/, returns https://help.github.com/
-
-    if not link[-1] == '/':
-        link += '/'
-
-    tld_pattern = re.compile(r'\.\w+\/')
-    tld = re.findall(tld_pattern, link)[0]
-    root = link.split(tld)[0] + tld
-    return root
+    """
+    link: a string of a url in the form https://help.github.com/enterprise/2.7/user/
+        utilized tld to obtain the subdomain and tld of the string in order to return a string
+        of the form https://help.github.com/
     """
     url_tld = get_tld(link, as_object=True, fail_silently=True)
     if not url_tld:
@@ -22,6 +16,7 @@ def get_root_url(link):
         intro = "https://"
     else:
         intro = "http://"
+    # some URLS do not contain a subdomain(e.g. https://google.com)
     if url_tld.subdomain:
         return intro + url_tld.subdomain + "." + url_tld.tld + "/"
     else:
@@ -29,9 +24,25 @@ def get_root_url(link):
 
 
 def remove_anchor(link):
+    """
+    link: a string of a url in form https://[tld]/asdf#anchor_point
+    returns: a string of a url in fomr https://[tld]/asdf
+    """
     return link.split("#")[0]
 
 def clean_link(base_url, dirty_link, root_url):
+    """
+    base_url: a string of a url in form of a accessible webpage
+        that is to say base_url is the web page that was succesfully visited and
+        had links extracted from it
+    dirty_link: a string of a url that was extracted from the base_url webpage
+        possible forms for dirty_link include '../[link]', '/[link]', '[link]', all of which
+        are links that refer to the root or base url. It could also be a full link to an
+        external web_page.
+    root_url: a string of a url containing the subdomain followed by the domain of the url,
+        essentially, this url would direct to the top level of the website
+    """
+    #TODO: create a function that will correct the ending for a full url, adding a / whenever possible
     #print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
     if not root_url:
         return None
@@ -59,6 +70,13 @@ def clean_link(base_url, dirty_link, root_url):
     return full_link
 
 def clean_links(base_url, dirty_links):
+    """
+    base_url: a string of a url of an accessible (full) form, this is the url
+        that contains the visited page which all other links were extracted from
+    dirty_links: a list of strings of urls of an unaccessible form that were 
+        extracted from the base_url page. See clean_link docstring for further details
+    returns: a list of strings of urls of a fully accessible form
+    """
     has_linked = {}
     full_links = []
     for link in dirty_links:
@@ -100,6 +118,15 @@ def has_html(url):
 have_visited = {}
 
 def all_links(input_url):
+    """
+    input_url: a string of a url in a fully accessible form
+    Downloads the web page attached to the string and searches
+    for any links contained within. Visits each web page linked
+    recursively and eventually returns a list of every link found
+    on that page
+    """
+    
+    #TODO: a valid html link begins with <!DOCTYPE html>
     print("--------VISITING", input_url, "----------")
     response = requests.get(input_url)
     soup = BeautifulSoup(response.content, "html.parser", parse_only=SoupStrainer('a'))
@@ -121,6 +148,6 @@ def all_links(input_url):
 
     return full_links
 
-all_links("https://en.wikipedia.org/wiki/Squash_at_the_1998_Asian_Games_%E2%80%93_Women%27s_singles")
+all_links("https://news.ycombinator.com/")
 #url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 #all_links(url)
