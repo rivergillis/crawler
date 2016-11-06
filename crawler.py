@@ -50,6 +50,7 @@ def clean_links(base_url, dirty_links):
         if has_linked.get(cleaned, False):
             continue
         if not has_html(cleaned):
+            print("BUT THIS ISN'T AN HTML FILE!!!!!!!!!!")
             continue
         full_links.append(cleaned)
         has_linked[cleaned] = True
@@ -58,20 +59,26 @@ def clean_links(base_url, dirty_links):
 def has_html(url):
     """determines if a url ends with anything other than a directory, .html,
     .xhtml, or .php, requires a full url"""
+    #BUG: files like https://github.com/rivergillis/crawler/blob/master/crawler.py are still html
+
     print("checking", url)
     good_filetypes = [".html", ".xhtml", ".php"]
-    pattern = re.compile(r'\.\w+')
+    pattern = re.compile(r'\.\w+\/*')
     tld_split = url.split(get_tld(url))
     print(tld_split)
-    if len(tld_split) > 1 and len((tld_split)[1]) > 1:
+    if len(tld_split) > 1:
         after_tld = tld_split[1]
-        extension = re.findall(pattern, after_tld)
-        print(extension)
-        if not extension:
+        extensions = re.findall(pattern, after_tld)
+        print(extensions)
+
+        if not extensions:
             return True
-        if extension[-1] not in good_filetypes:
+        if not after_tld.endswith(extensions[-1]):
+            return True
+        if extensions[-1] not in good_filetypes:
             return False
     return True
+print(has_html("https://help.github.com/enterprise/2.7/user"))
 
 have_visited = {}
 
