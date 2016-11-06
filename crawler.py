@@ -3,10 +3,22 @@ from bs4 import BeautifulSoup, SoupStrainer
 import requests
 import re
 
+def get_root_domain(link):
+    """Given a url in the form https://help.github.com/enterprise/2.7/user/, returns https://help.github.com/
+    """
+    if not link[-1] == '/':
+        link += '/'
+
+    tld_pattern = re.compile(r'\.\w+\/')
+    tld = re.findall(tld_pattern, link)[0]
+    root = link.split(tld)[0] + tld
+    return root
+
 def remove_anchor(link):
     return link.split("#")[0]
 
 def clean_link(base_url, dirty_link):
+    print("cleaning link", dirty_link, "with base", base_url)
     no_anchor = remove_anchor(dirty_link)
     if no_anchor.startswith('http://') or no_anchor.startswith('https://'):
         return no_anchor
@@ -18,11 +30,14 @@ def clean_link(base_url, dirty_link):
         if no_anchor.startswith("../"):
             no_anchor = no_anchor[3:]
             base_url = base_url.rsplit("/", 2)[0]
+        elif no_anchor.startswith("/"): # root + extra
+            full_url = base_url + no_anchor
         else:
             base_url = base_url.rsplit("/", 1)[0]
             if base_url == "https:/": # linked to an anchor of a base page
                 return None
         full_link = base_url + "/" + no_anchor
+    print("finished cleaning, link is", full_link)
 
     return full_link
 
@@ -59,9 +74,10 @@ def all_links(input_url):
             print("but we already visited it!")
         else:
             have_visited[link] = True
-            all_links(link)
+            #all_links(link)
 
     return full_links
 
-url = "https://docs.python.org/3/library/urllib.parse.html#module-urllib.parse"
-all_links(url)
+#all_links("https://help.github.com/enterprise/2.7/user")
+#url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
+#all_links(url)
