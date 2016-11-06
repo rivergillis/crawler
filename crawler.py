@@ -6,7 +6,7 @@ import re
 
 def get_root_url(link):
     """Given a url in the form https://help.github.com/enterprise/2.7/user/, returns https://help.github.com/
-    """
+
     if not link[-1] == '/':
         link += '/'
 
@@ -14,11 +14,26 @@ def get_root_url(link):
     tld = re.findall(tld_pattern, link)[0]
     root = link.split(tld)[0] + tld
     return root
+    """
+    url_tld = get_tld(link, as_object=True, fail_silently=True)
+    if not url_tld:
+        return None
+    if link.startswith("https"):
+        intro = "https://"
+    else:
+        intro = "http://"
+    if url_tld.subdomain:
+        return intro + url_tld.subdomain + "." + url_tld.tld + "/"
+    else:
+        return intro + url_tld.tld + "/"
+
 
 def remove_anchor(link):
     return link.split("#")[0]
 
 def clean_link(base_url, dirty_link, root_url):
+    if not root_url:
+        return None
     no_anchor = remove_anchor(dirty_link)
     if no_anchor.startswith('http://') or no_anchor.startswith('https://'):
         return no_anchor
@@ -103,6 +118,6 @@ def all_links(input_url):
 
     return full_links
 
-all_links("https://help.github.com/enterprise/2.7/user")
+all_links("https://www.google.com/chrome/")
 #url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 #all_links(url)
