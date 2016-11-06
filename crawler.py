@@ -32,6 +32,7 @@ def remove_anchor(link):
     return link.split("#")[0]
 
 def clean_link(base_url, dirty_link, root_url):
+    #print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
     if not root_url:
         return None
     no_anchor = remove_anchor(dirty_link)
@@ -43,8 +44,10 @@ def clean_link(base_url, dirty_link, root_url):
         if no_anchor.endswith("/") and len(no_anchor) > 1: #trailing slash
             no_anchor = no_anchor[:-1]
         if no_anchor.startswith("../"):
+            #print('moving back, base', base_url)
             no_anchor = no_anchor[3:]
-            base_url = base_url.rsplit("/", 2)[0]
+            base_url = base_url.rsplit("/", 1)[0]
+            #print('splitted, base,',base_url)
         elif no_anchor.startswith("/"): # root + extra
             return root_url + no_anchor[1:]
         else:
@@ -118,6 +121,6 @@ def all_links(input_url):
 
     return full_links
 
-all_links("https://www.google.com/chrome/")
+all_links("https://en.wikipedia.org/wiki/Squash_at_the_1998_Asian_Games_%E2%80%93_Women%27s_singles")
 #url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 #all_links(url)
