@@ -3,6 +3,11 @@ from tld import get_tld
 import requests
 import re
 
+#TODO: cover all cases where a url is empty
+#TODO: create unit testing for these functions
+#TODO: create a link data type that specifies form and other things
+#TODO: this data can be serialized onto the disc using pickle
+
 def get_root_url(link):
     """
     link: a string of a url in the form https://help.github.com/enterprise/2.7/user/
@@ -26,9 +31,48 @@ def get_root_url(link):
 def remove_anchor(link):
     """
     link: a string of a url in form https://[tld]/asdf#anchor_point
-    returns: a string of a url in fomr https://[tld]/asdf
+    returns: a string of a url in form https://[tld]/asdf
     """
     return link.split("#")[0]
+
+def correct_trailing_slash(link):
+    print('correcting trailing slash for', link)
+    """
+    link: a string of a url of any form
+    returns: a string of a url of that same form with a trailing slash if possible
+    ex: '/' -> '/'; '/asdf' -> '/asdf/'; '/asdf.html' -> '/asdf.html'
+    '/asdf#sdfadsf' -> '/asdf/'; '#sdf' -> ''; '../' -> '../'
+    'https://rivergillis.com' -> 'https://rivergillis.com/'
+    """
+    link = remove_anchor(link)
+    if link.endswith('/'):
+        return link # nothing needs to be done here, covers '/' case too
+
+    url_tld = get_tld(link, as_object=True, fail_silently=True)
+    pattern = re.compile(r'\.\w+')
+    extensions = re.findall(pattern, link)
+
+    def correct_rel(rel_link): #for link of form: '/[anything]'
+        if not extensions: # form: '/asdf'
+            return rel_link + '/'
+        else: # form: '/asdf.html' or '/2.3/asdf'
+            if link.endswith(extensions[-1]): # form: 'asdf.html' or 'asdf.2'
+                return rel_link
+
+    if url_tld: #form: 'https://rivergillis.com/[anything else]'
+        splitted = link.split(url_tld.tld)
+        before_tld = splitted[0]
+        after_tld = splitted[1]
+        if not after_tld:
+            return before_tld + url_tld.tld + '/'
+
+        corrected = correct_rel(after_tld)
+        return before_tld + url_tld.tld + corrected
+    else:
+        return correct_rel(link)
+        
+
+    raise ValueError(link, "is not a valid link!")
 
 def clean_link(base_url, dirty_link, root_url):
     """
@@ -42,7 +86,6 @@ def clean_link(base_url, dirty_link, root_url):
     root_url: a string of a url containing the subdomain followed by the domain of the url,
         essentially, this url would direct to the top level of the website
     """
-    #TODO: create a function that will correct the ending for a full url, adding a / whenever possible
     #print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
     if not root_url:
         return None
@@ -148,6 +191,6 @@ def all_links(input_url):
 
     return full_links
 
-all_links("https://news.ycombinator.com/")
+#all_links("https://news.ycombinator.com/")
 #url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 #all_links(url)
