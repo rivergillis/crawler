@@ -51,18 +51,22 @@ def correct_trailing_slash(link):
     url_tld = get_tld(link, as_object=True, fail_silently=True)
     pattern = re.compile(r'\.\w+')
     extensions = re.findall(pattern, link)
+    print(extensions)
 
     def correct_rel(rel_link): #for link of form: '/[anything]'
-        if not extensions: # form: '/asdf'
-            return rel_link + '/'
-        else: # form: '/asdf.html' or '/2.3/asdf'
-            if link.endswith(extensions[-1]): # form: 'asdf.html' or 'asdf.2'
-                return rel_link
+        print("correcting rel", rel_link)
+        if extensions and rel_link.endswith(extensions[-1]):
+            # form: 'asdf.html'
+            return rel_link
+        return rel_link + '/'
 
     if url_tld: #form: 'https://rivergillis.com/[anything else]'
+        print(url_tld)
         splitted = link.split(url_tld.tld)
         before_tld = splitted[0]
         after_tld = splitted[1]
+        print(before_tld)
+        print(after_tld)
         if not after_tld:
             return before_tld + url_tld.tld + '/'
 
@@ -73,6 +77,7 @@ def correct_trailing_slash(link):
         
 
     raise ValueError(link, "is not a valid link!")
+
 
 def clean_link(base_url, dirty_link, root_url):
     """
@@ -91,7 +96,7 @@ def clean_link(base_url, dirty_link, root_url):
         return None
     no_anchor = remove_anchor(dirty_link)
     if no_anchor.startswith('http://') or no_anchor.startswith('https://'):
-        return no_anchor
+        return correct_trailing_slash(no_anchor)
     else:
         if base_url.endswith("/"):
             base_url = base_url[:-1]
@@ -103,14 +108,14 @@ def clean_link(base_url, dirty_link, root_url):
             base_url = base_url.rsplit("/", 1)[0]
             #print('splitted, base,',base_url)
         elif no_anchor.startswith("/"): # root + extra
-            return root_url + no_anchor[1:]
+            return correct_trailing_slash(root_url + no_anchor[1:])
         else:
             base_url = base_url.rsplit("/", 1)[0]
             if base_url == "https:/": # linked to an anchor of a base page
                 return None
         full_link = base_url + "/" + no_anchor
 
-    return full_link
+    return correct_trailing_slash(full_link)
 
 def clean_links(base_url, dirty_links):
     """
