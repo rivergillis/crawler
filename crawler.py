@@ -194,6 +194,6 @@ def all_links(input_url):
 
     return full_links
 
-all_links("http://news.ycombinator.com/")
+#all_links("http://news.ycombinator.com/")
 #url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 #all_links(url)
