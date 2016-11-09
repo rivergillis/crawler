@@ -36,7 +36,6 @@ def remove_anchor(link):
     return link.split("#")[0]
 
 def correct_trailing_slash(link):
-    print('correcting trailing slash for', link)
     """
     link: a string of a url of any form
     returns: a string of a url of that same form with a trailing slash if possible
@@ -44,6 +43,7 @@ def correct_trailing_slash(link):
     '/asdf#sdfadsf' -> '/asdf/'; '#sdf' -> ''; '../' -> '../'
     'https://rivergillis.com' -> 'https://rivergillis.com/'
     """
+    print("correcting slash for", link)
     link = remove_anchor(link)
     if link.endswith('/'):
         return link # nothing needs to be done here, covers '/' case too
@@ -51,22 +51,17 @@ def correct_trailing_slash(link):
     url_tld = get_tld(link, as_object=True, fail_silently=True)
     pattern = re.compile(r'\.\w+')
     extensions = re.findall(pattern, link)
-    print(extensions)
 
     def correct_rel(rel_link): #for link of form: '/[anything]'
-        print("correcting rel", rel_link)
         if extensions and rel_link.endswith(extensions[-1]):
             # form: 'asdf.html'
             return rel_link
         return rel_link + '/'
 
     if url_tld: #form: 'https://rivergillis.com/[anything else]'
-        print(url_tld)
         splitted = link.split(url_tld.tld)
         before_tld = splitted[0]
         after_tld = splitted[1]
-        print(before_tld)
-        print(after_tld)
         if not after_tld:
             return before_tld + url_tld.tld + '/'
 
@@ -91,7 +86,7 @@ def clean_link(base_url, dirty_link, root_url):
     root_url: a string of a url containing the subdomain followed by the domain of the url,
         essentially, this url would direct to the top level of the website
     """
-    #print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
+    print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
     if not root_url:
         return None
     no_anchor = remove_anchor(dirty_link)
@@ -144,6 +139,8 @@ def has_html(url):
     """determines if a url ends with anything other than a directory, .html,
     .xhtml, or .php, requires a full url"""
     #BUG: files like https://github.com/rivergillis/crawler/blob/master/crawler.py are still html
+    if url.endswith('/'):
+        return True
 
     good_filetypes = [".html", ".xhtml", ".php"]
     pattern = re.compile(r'\.\w+\/*')
@@ -175,6 +172,7 @@ def all_links(input_url):
     """
     
     #TODO: a valid html link begins with <!DOCTYPE html>
+    #TODO: check for if we've visited https or http version (also maybe check for www or not)
     print("--------VISITING", input_url, "----------")
     response = requests.get(input_url)
     soup = BeautifulSoup(response.content, "html.parser", parse_only=SoupStrainer('a'))
@@ -196,6 +194,6 @@ def all_links(input_url):
 
     return full_links
 
-#all_links("https://news.ycombinator.com/")
+all_links("http://news.ycombinator.com/")
 #url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 #all_links(url)
