@@ -9,6 +9,14 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.get_root_url("http://help.github.com/enterprise/2.7/user/"), "http://help.github.com/")
         self.assertEqual(c.get_root_url("https://google.com/test/"), "https://google.com/")
         self.assertEqual(c.get_root_url("http://google.com/test/"), "http://google.com/")
+        self.assertIsNone(c.get_root_url(""))
+        self.assertIsNone(c.get_root_url(None))
+
+    def test_remove_anchor(self):
+        self.assertEqual(c.remove_anchor("https://rivergillis.com/f#anchor_point"), "https://rivergillis.com/f")
+        self.assertEqual(c.remove_anchor("#asdf"), "")
+        self.assertEqual(c.remove_anchor("asdf#asdf"), "asdf")
+        self.assertIsNone(c.remove_anchor(None))
 
 if __name__ == '__main__':
     unittest.main()
