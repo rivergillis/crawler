@@ -53,6 +53,8 @@ def correct_trailing_slash(link):
     """
     print("correcting slash for", link)
     link = remove_anchor(link)
+    if not link:
+        return ''
     if link.endswith('/'):
         return link  # nothing needs to be done here, covers '/' case too
 
