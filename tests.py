@@ -14,7 +14,7 @@ class TestLinkMethods(unittest.TestCase):
         self.assertIsNone(c.get_root_url(None))
 
     def test_remove_anchor(self):
-        self.assertEqual(c.remove_anchor("https://rivergillis.com/f#anchor_point"), "https://rivergillis.com/f")
+        self.assertEqual(c.remove_anchor("http://rivergillis.com/f#anchor_point"), "http://rivergillis.com/f")
         self.assertEqual(c.remove_anchor("#asdf"), "")
         self.assertEqual(c.remove_anchor("asdf#asdf"), "asdf")
         self.assertIsNone(c.remove_anchor(None))
@@ -27,15 +27,34 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.correct_trailing_slash("#asdf"), "")
         self.assertEqual(c.correct_trailing_slash("../"), "../")
         self.assertEqual(c.correct_trailing_slash("../asdf"), "../asdf/")
-        self.assertEqual(c.correct_trailing_slash("https://rivergillis.com"), "https://rivergillis.com/")
+        self.assertEqual(c.correct_trailing_slash("http://rivergillis.com"), "http://rivergillis.com/")
 
-        """
-        link: a string of a url of any form
-        returns: a string of a url of that same form with a trailing slash if possible
-        ex: '/' -> '/'; '/asdf' -> '/asdf/'; '/asdf.html' -> '/asdf.html'
-        '/asdf#sdfadsf' -> '/asdf/'; '#sdf' -> ''; '../' -> '../'
-        'https://rivergillis.com' -> 'https://rivergillis.com/'
-        """
+    def test_clean_link(self):
+        base_url = "http://rivergillis.com/"
+        # note: make sure to test get_root_url first
+        root_url = c.get_root_url(base_url)
+        self.assertEqual(c.clean_link(base_url, "/index", root_url), "http://rivergillis.com/index/")
+        self.assertEqual(c.clean_link(base_url, "/index.html", root_url), "http://rivergillis.com/index.html")
+        self.assertEqual(c.clean_link(base_url, "/index#sadf", root_url), "http://rivergillis.com/index/")
+        # self.assertEqual(c.clean_link(base_url, "../", root_url), ?)
+        # self.assertEqual(c.clean_link(base_url, "../../", root_url), ?)
+        # self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "http://rivergillis.com/")
+        # self.assertEqual(c.clean_link(base_url, "index.html", root_url), "http://rivergillis.com/index.html")
+        # self.assertEqual(c.clean_link(base_url, "index", root_url), "http://rivergillis.com/index/")
+        base_url = "https://www.rivergillis.co.uk/test/3.5/"
+        root_url = c.get_root_url(base_url)
+        self.assertEqual(c.clean_link(base_url, "/index", root_url), "https://www.rivergillis.co.uk/index/")
+        self.assertEqual(c.clean_link(base_url, "/index.html", root_url), "https://www.rivergillis.co.uk/index.html")
+        self.assertEqual(c.clean_link(base_url, "/index#sadf", root_url), "https://www.rivergillis.co.uk/index/")
+        self.assertEqual(c.clean_link(base_url, "../", root_url), "https://www.rivergillis.co.uk/test/")
+        self.assertEqual(c.clean_link(base_url, "../index", root_url), "https://www.rivergillis.co.uk/test/index/")
+        self.assertEqual(c.clean_link(base_url, "../index#asdf", root_url), "https://www.rivergillis.co.uk/test/index/")
+        self.assertEqual(c.clean_link(base_url, "../index.html", root_url), "https://www.rivergillis.co.uk/test/index.html")
+        # self.assertEqual(c.clean_link(base_url, "../../", root_url), "https://www.rivergillis.co.uk/")
+        # self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "https://www.rivergillis.co.uk/test/3.5/")
+        # self.assertEqual(c.clean_link(base_url, "index.html", root_url), "https://www.rivergillis.co.uk/test/3.5/index.html")
+        # self.assertEqual(c.clean_link(base_url, "index", root_url), "https://www.rivergillis.co.uk/test/3.5/index/")
+
 
 if __name__ == '__main__':
     unittest.main()

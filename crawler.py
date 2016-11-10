@@ -51,7 +51,7 @@ def correct_trailing_slash(link):
     '/asdf#sdfadsf' -> '/asdf/'; '#sdf' -> ''; '../' -> '../'
     'https://rivergillis.com' -> 'https://rivergillis.com/'
     """
-    print("correcting slash for", link)
+    # print("correcting slash for", link)
     link = remove_anchor(link)
     if not link:
         return ''
@@ -93,7 +93,7 @@ def clean_link(base_url, dirty_link, root_url):
     root_url: a string of a url containing the subdomain followed by the domain of the url,
         essentially, this url would direct to the top level of the website
     """
-    print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
+    # print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
     if not root_url:
         return None
     no_anchor = remove_anchor(dirty_link)
