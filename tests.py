@@ -43,9 +43,9 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.clean_link(base_url, "/index#sadf", root_url), "http://rivergillis.com/index/")
         # self.assertEqual(c.clean_link(base_url, "../", root_url), ?)
         # self.assertEqual(c.clean_link(base_url, "../../", root_url), ?)
-        # self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "http://rivergillis.com/")
-        # self.assertEqual(c.clean_link(base_url, "index.html", root_url), "http://rivergillis.com/index.html")
-        # self.assertEqual(c.clean_link(base_url, "index", root_url), "http://rivergillis.com/index/")
+        self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "http://rivergillis.com/")
+        self.assertEqual(c.clean_link(base_url, "index.html", root_url), "http://rivergillis.com/index.html")
+        self.assertEqual(c.clean_link(base_url, "index", root_url), "http://rivergillis.com/index/")
         base_url = "https://www.rivergillis.co.uk/test/3.5/"
         root_url = c.get_root_url(base_url)
         self.assertEqual(c.clean_link(base_url, "/index", root_url), "https://www.rivergillis.co.uk/index/")
@@ -55,10 +55,10 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.clean_link(base_url, "../index", root_url), "https://www.rivergillis.co.uk/test/index/")
         self.assertEqual(c.clean_link(base_url, "../index#asdf", root_url), "https://www.rivergillis.co.uk/test/index/")
         self.assertEqual(c.clean_link(base_url, "../index.html", root_url), "https://www.rivergillis.co.uk/test/index.html")
-        # self.assertEqual(c.clean_link(base_url, "../../", root_url), "https://www.rivergillis.co.uk/")
-        # self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "https://www.rivergillis.co.uk/test/3.5/")
-        # self.assertEqual(c.clean_link(base_url, "index.html", root_url), "https://www.rivergillis.co.uk/test/3.5/index.html")
-        # self.assertEqual(c.clean_link(base_url, "index", root_url), "https://www.rivergillis.co.uk/test/3.5/index/")
+        self.assertEqual(c.clean_link(base_url, "../../", root_url), "https://www.rivergillis.co.uk/")
+        self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "https://www.rivergillis.co.uk/test/3.5/")
+        self.assertEqual(c.clean_link(base_url, "index.html", root_url), "https://www.rivergillis.co.uk/test/3.5/index.html")
+        self.assertEqual(c.clean_link(base_url, "index", root_url), "https://www.rivergillis.co.uk/test/3.5/index/")
 
 
 if __name__ == '__main__':

@@ -49,8 +49,10 @@ def up_a_directory(link):
     """
     if not link:
         return None
-    removed_dir = link.rsplit('/', 2)[0]
-    return removed_dir + '/'
+    if link == get_root_url(link):
+        raise ValueError(link, " is the same as its base and thus cannot move up a dir")
+    removed_dir = link.rsplit('/', 2)[0] + '/'
+    return removed_dir
 
 
 def correct_trailing_slash(link):
@@ -74,9 +76,9 @@ def correct_trailing_slash(link):
 
     def correct_rel(rel_link):  # for link of form: '/[anything]'
         if extensions and rel_link.endswith(extensions[-1]):
-            # form: 'asdf.html'
             return rel_link
         return rel_link + '/'
+            # form: 'asdf.html'
 
     if url_tld:  # form: 'https://rivergillis.com/[anything else]'
         splitted = link.split(url_tld.tld)
@@ -110,24 +112,19 @@ def clean_link(base_url, dirty_link, root_url):
     if no_anchor.startswith('http://') or no_anchor.startswith('https://'):
         return correct_trailing_slash(no_anchor)
     else:
-        if base_url.endswith("/"):
-            base_url = base_url[:-1]
-        if no_anchor.endswith("/") and len(no_anchor) > 1:  # trailing slash
-            no_anchor = no_anchor[:-1]
-        if no_anchor.startswith("../"):
-            # print('moving back, base', base_url)
-            no_anchor = no_anchor[3:]
-            base_url = base_url.rsplit("/", 1)[0]
-            # print('splitted, base,',base_url)
-        elif no_anchor.startswith("/"):  # root + extra
-            return correct_trailing_slash(root_url + no_anchor[1:])
-        else:
-            base_url = base_url.rsplit("/", 1)[0]
-            if base_url == "https:/":  # linked to an anchor of a base page
-                return None
-        full_link = base_url + "/" + no_anchor
+        c_base_url = correct_trailing_slash(base_url)
+        c_dirty = correct_trailing_slash(no_anchor)
+        while c_dirty.startswith("../"):
+            c_base_url = up_a_directory(c_base_url)
+            if len(c_dirty) == 3:
+                return correct_trailing_slash(c_base_url)
+            else:
+                c_dirty = c_dirty[3:] 
 
-    return correct_trailing_slash(full_link)
+        if c_dirty.startswith("/"):  # root + extra
+            return correct_trailing_slash(root_url + c_dirty[1:])
+        else:
+            return correct_trailing_slash(c_base_url + c_dirty)
 
 
 def clean_links(base_url, dirty_links):
@@ -214,6 +211,6 @@ def all_links(input_url):
 
     return full_links
 
-# all_links("http://news.ycombinator.com/")
+all_links("https://reddit.com")
 # url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
 # all_links(url)
