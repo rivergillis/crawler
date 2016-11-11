@@ -29,6 +29,11 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.correct_trailing_slash("../asdf"), "../asdf/")
         self.assertEqual(c.correct_trailing_slash("http://rivergillis.com"), "http://rivergillis.com/")
 
+    def test_up_a_directory(self):
+        self.assertIsNone(c.up_a_directory(None))
+        self.assertEqual(c.up_a_directory("https://rivergillis.com/river/"), "https://rivergillis.com/")
+        self.assertEqual(c.up_a_directory("http://rivergillis.co.uk/river/river/"), "http://rivergillis.co.uk/river/")
+
     def test_clean_link(self):
         base_url = "http://rivergillis.com/"
         # note: make sure to test get_root_url first

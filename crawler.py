@@ -42,6 +42,16 @@ def remove_anchor(link):
         return None
     return link.split("#")[0]
 
+def up_a_directory(link):
+    """
+    link: a string of a url in the form https://rivergillis.com/test/
+    returns: a string of a url in the form https://rivergillis.com/
+    """
+    if not link:
+        return None
+    removed_dir = link.rsplit('/', 2)[0]
+    return removed_dir + '/'
+
 
 def correct_trailing_slash(link):
     """
