@@ -28,6 +28,11 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.correct_trailing_slash("../"), "../")
         self.assertEqual(c.correct_trailing_slash("../asdf"), "../asdf/")
         self.assertEqual(c.correct_trailing_slash("http://rivergillis.com"), "http://rivergillis.com/")
+        self.assertEqual(c.correct_trailing_slash("./test"), "./test/")
+        self.assertEqual(c.correct_trailing_slash("./test.html"), "./test.html")
+        self.assertEqual(c.correct_trailing_slash("./test#asdf"), "./test/")
+        self.assertEqual(c.correct_trailing_slash("./test.html#adsf"), "./test.html")
+        self.assertEqual(c.correct_trailing_slash("./"), "./")
 
     def test_up_a_directory(self):
         self.assertIsNone(c.up_a_directory(None))
@@ -59,6 +64,12 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "https://www.rivergillis.co.uk/test/3.5/")
         self.assertEqual(c.clean_link(base_url, "index.html", root_url), "https://www.rivergillis.co.uk/test/3.5/index.html")
         self.assertEqual(c.clean_link(base_url, "index", root_url), "https://www.rivergillis.co.uk/test/3.5/index/")
+
+        self.assertEqual(c.clean_link(base_url, "./foo", root_url), "https://www.rivergillis.co.uk/test/3.5/foo/")
+        self.assertEqual(c.clean_link(base_url, "./foo.html", root_url), "https://www.rivergillis.co.uk/test/3.5/foo.html")
+        self.assertEqual(c.clean_link(base_url, "./foo.html#asdf", root_url), "https://www.rivergillis.co.uk/test/3.5/foo.html")
+        self.assertEqual(c.clean_link(base_url, "./../foo", root_url), "https://www.rivergillis.co.uk/test/foo/")
+        self.assertEqual(c.clean_link(base_url, ".././foo", root_url), "https://www.rivergillis.co.uk/test/foo/")
 
 
 if __name__ == '__main__':
