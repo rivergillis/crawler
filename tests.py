@@ -39,6 +39,12 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.up_a_directory("https://rivergillis.com/river/"), "https://rivergillis.com/")
         self.assertEqual(c.up_a_directory("http://rivergillis.co.uk/river/river/"), "http://rivergillis.co.uk/river/")
 
+    def test_remove_self_ref(self):
+        self.assertIsNone(c.remove_self_ref(None))
+        self.assertEqual(c.remove_self_ref("./test"), "test")
+        self.assertEqual(c.remove_self_ref("../test"), "../test")
+        self.assertEqual(c.remove_self_ref("././test/"), "./test/")
+
     def test_clean_link(self):
         base_url = "http://rivergillis.com/"
         # note: make sure to test get_root_url first
@@ -64,6 +70,7 @@ class TestLinkMethods(unittest.TestCase):
         self.assertEqual(c.clean_link(base_url, "#asdf", root_url), "https://www.rivergillis.co.uk/test/3.5/")
         self.assertEqual(c.clean_link(base_url, "index.html", root_url), "https://www.rivergillis.co.uk/test/3.5/index.html")
         self.assertEqual(c.clean_link(base_url, "index", root_url), "https://www.rivergillis.co.uk/test/3.5/index/")
+
 
         self.assertEqual(c.clean_link(base_url, "./foo", root_url), "https://www.rivergillis.co.uk/test/3.5/foo/")
         self.assertEqual(c.clean_link(base_url, "./foo.html", root_url), "https://www.rivergillis.co.uk/test/3.5/foo.html")

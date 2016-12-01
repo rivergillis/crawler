@@ -54,6 +54,18 @@ def up_a_directory(link):
     removed_dir = link.rsplit('/', 2)[0] + '/'
     return removed_dir
 
+def remove_self_ref(link):
+    """
+    :param link: a string of a url beginning with './foo'
+    :return: a string of a url of the form 'foo'
+    """
+    if not link:
+        return None
+    elif link.startswith('./'):
+        return link[2:]
+    else:
+        return link
+
 
 def correct_trailing_slash(link):
     """
@@ -114,12 +126,19 @@ def clean_link(base_url, dirty_link, root_url):
     else:
         c_base_url = correct_trailing_slash(base_url)
         c_dirty = correct_trailing_slash(no_anchor)
+
+        while c_dirty.startswith("./"):
+            c_dirty = remove_self_ref(c_dirty)
         while c_dirty.startswith("../"):
             c_base_url = up_a_directory(c_base_url)
-            if len(c_dirty) == 3:
+            if len(c_dirty) == 3:  # this could lead to a bug?
                 return correct_trailing_slash(c_base_url)
             else:
-                c_dirty = c_dirty[3:] 
+                c_dirty = c_dirty[3:]
+                # now check for and remove './'
+                c_dirty = remove_self_ref(c_dirty)
+        while c_dirty.startswith("./"):
+            c_dirty = remove_self_ref(c_dirty)
 
         if c_dirty.startswith("/"):  # root + extra
             return correct_trailing_slash(root_url + c_dirty[1:])
