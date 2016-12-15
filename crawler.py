@@ -42,6 +42,7 @@ def remove_anchor(link):
         return None
     return link.split("#")[0]
 
+
 def up_a_directory(link):
     """
     link: a string of a url in the form https://rivergillis.com/test/
@@ -53,6 +54,7 @@ def up_a_directory(link):
         raise ValueError(link, " is the same as its base and thus cannot move up a dir")
     removed_dir = link.rsplit('/', 2)[0] + '/'
     return removed_dir
+
 
 def remove_self_ref(link):
     """
@@ -84,13 +86,15 @@ def correct_trailing_slash(link):
 
     url_tld = get_tld(link, as_object=True, fail_silently=True)
     pattern = re.compile(r'\.\w+')
+    # we only care about the last element of extensions, as it will be the .com/.html portion if it exists
     extensions = re.findall(pattern, link)
 
     def correct_rel(rel_link):  # for link of form: '/[anything]'
+        # form: '/asdf.html'
         if extensions and rel_link.endswith(extensions[-1]):
             return rel_link
+        # form: '/asdf/'
         return rel_link + '/'
-            # form: 'asdf.html'
 
     if url_tld:  # form: 'https://rivergillis.com/[anything else]'
         splitted = link.split(url_tld.tld)
@@ -103,6 +107,15 @@ def correct_trailing_slash(link):
         return before_tld + url_tld.tld + corrected
     else:
         return correct_rel(link)
+
+
+def move_up_dirs(link, root_url):
+    """
+    :param link: a link of url with an arbitrary number of dirs to traverse (ex: './../././../test')
+    :param root_url: a link of the root url from which link was linked
+    :return:
+    """
+    pass
 
 
 def clean_link(base_url, dirty_link, root_url):
@@ -230,6 +243,6 @@ def all_links(input_url):
 
     return full_links
 
-# all_links("https://reddit.com")
-# url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
-# all_links(url)
+if __name__ == "__main__":
+    url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
+    all_links(url)
