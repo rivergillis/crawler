@@ -1,8 +1,61 @@
 import unittest
 import crawler as c
+import link as l
 
 
-class TestLinkMethods(unittest.TestCase):
+class TestLinkStringFunctions(unittest.TestCase):
+
+    def test_get_root_url(self):
+        self.assertEqual(l.get_root_url("https://help.github.com/enterprise/2.7/user/"), "https://help.github.com/")
+        self.assertIsNone(l.get_root_url("/enterprise/2.7/user/"))
+        self.assertEqual(l.get_root_url("http://help.github.com/enterprise/2.7/user/"), "http://help.github.com/")
+        self.assertEqual(l.get_root_url("https://google.com/test/"), "https://google.com/")
+        self.assertEqual(l.get_root_url("http://google.com/test/"), "http://google.com/")
+        self.assertIsNone(l.get_root_url(""))
+        self.assertIsNone(l.get_root_url(None))
+
+    def test_remove_anchor(self):
+        self.assertEqual(l.remove_anchor("http://rivergillis.com/f#anchor_point"), "http://rivergillis.com/f")
+        self.assertEqual(l.remove_anchor("#asdf"), "")
+        self.assertEqual(l.remove_anchor("asdf#asdf"), "asdf")
+        self.assertIsNone(l.remove_anchor(None))
+
+    def test_correct_trailing_slash(self):
+        self.assertEqual(l.correct_trailing_slash("/"), "/")
+        self.assertEqual(l.correct_trailing_slash("/asdf/"), "/asdf/")
+        self.assertEqual(l.correct_trailing_slash("/asdf.html"), "/asdf.html")
+        self.assertEqual(l.correct_trailing_slash("/asdf#asdf"), "/asdf/")
+        self.assertEqual(l.correct_trailing_slash("#asdf"), "")
+        self.assertEqual(l.correct_trailing_slash("../"), "../")
+        self.assertEqual(l.correct_trailing_slash("../asdf"), "../asdf/")
+        self.assertEqual(l.correct_trailing_slash("http://rivergillis.com"), "http://rivergillis.com/")
+        self.assertEqual(l.correct_trailing_slash("./test"), "./test/")
+        self.assertEqual(l.correct_trailing_slash("./test.html"), "./test.html")
+        self.assertEqual(l.correct_trailing_slash("./test#asdf"), "./test/")
+        self.assertEqual(l.correct_trailing_slash("./test.html#adsf"), "./test.html")
+        self.assertEqual(l.correct_trailing_slash("./"), "./")
+
+    def test_up_a_directory(self):
+        self.assertIsNone(l.up_a_directory(None))
+        self.assertEqual(l.up_a_directory("https://rivergillis.com/river/"), "https://rivergillis.com/")
+        self.assertEqual(l.up_a_directory("http://rivergillis.co.uk/river/river/"), "http://rivergillis.co.uk/river/")
+
+
+class TestLinkObjectMethods(unittest.TestCase):
+
+    def test_initialize(self):
+        test_link = l.Link("raw_value", "raw_base")
+        self.assertEqual(test_link.raw_value, "raw_value")
+        self.assertEqual(test_link.raw_base, "raw_base")
+
+    def test_get_root_url(self):
+        test_link = l.Link("rel_link", "https://help.github.com/enterprise/2.7/user/")
+        self.assertEqual(test_link.root_url, "https://help.github.com/")
+        test_link.set_base("http://www.google.co.uk/")
+        self.assertEqual(test_link.root_url, "http://www.google.co.uk/")
+
+
+class TestLinkCrawlerMethods(unittest.TestCase):
 
     def test_get_root_url(self):
         self.assertEqual(c.get_root_url("https://help.github.com/enterprise/2.7/user/"), "https://help.github.com/")
