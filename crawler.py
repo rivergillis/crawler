@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup, SoupStrainer
+from link import Link
 from tld import get_tld
 import requests
 import re
@@ -17,30 +18,7 @@ def move_up_dirs(link, root_url):
     """
     pass
 
-def clean_links(base_url, dirty_links):
-    """
-    base_url: a string of a url of an accessible (full) form, this is the url
-        that contains the visited page which all other links were extracted from
-    dirty_links: a list of strings of urls of an unaccessible form that were 
-        extracted from the base_url page. See clean_link docstring for further details
-    returns: a list of strings of urls of a fully accessible form
-    """
-    has_linked = {}
-    full_links = []
-    for link in dirty_links:
-        cleaned = clean_link(base_url, link, get_root_url(base_url))
-        if not cleaned:
-            continue
-        if has_linked.get(cleaned, False):
-            continue
-        if not has_html(cleaned):
-            print(cleaned, "BUT THIS ISN'T AN HTML FILE!!!!!!!!!!")
-            continue
-        full_links.append(cleaned)
-        has_linked[cleaned] = True
-    return full_links
-
-have_visited = {}
+have_visited = set()
 
 
 def all_links(input_url):
@@ -64,17 +42,17 @@ def all_links(input_url):
             if not (link['href'].startswith("#")):
                 links.append(str(link['href']))
 
-    full_links = clean_links(input_url, links)
-    for link in full_links:
-        print("found", link)
-        if have_visited.get(link, False):
-            print("but we already visited it!")
-        else:
-            have_visited[link] = True
-            all_links(link)
+    link_objects = {Link(link_str, input_url) for link_str in links}
+    for link in link_objects:
+        if link in have_visited:
+            continue
+        have_visited.add(link)
+        print("found new: ", link)
+        all_links(link.full_hyperlink)
 
-    return full_links
+    print("now returning")
+    return link_objects
 
 if __name__ == "__main__":
-    url = "https://github.com/rivergillis/crawler/blob/master/crawler.py"
+    url = "https://stackoverflow.com/users/34397/slaks/"
     all_links(url)

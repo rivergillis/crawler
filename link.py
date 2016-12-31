@@ -219,3 +219,12 @@ class Link(object):
             return self.full_hyperlink.split(":", 1)[1] == other.full_hyperlink.split(":", 1)[1]
         else:
             return self.full_hyperlink == other.full_hyperlink
+
+    def __hash__(self):
+        return hash(self.full_hyperlink)
+
+    def __eq__(self, other):
+        return self.full_hyperlink == other.full_hyperlink
+
+    def __ne__(self, other):
+        return not(self == other)
