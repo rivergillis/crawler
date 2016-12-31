@@ -97,6 +97,19 @@ def up_a_directory(link_string):
     return removed_dir
 
 
+def remove_self_ref(link_string):
+    """
+    :param link_string: a string of a url beginning with './foo'
+    :return: a string of a url of the form 'foo'
+    """
+    if not link_string:
+        return None
+    elif link_string.startswith('./'):
+        return link_string[2:]
+    else:
+        return link_string
+
+
 class Link(object):
     """
     The Link object is to be used in crawler.py to handle all types of links obtained while searching html
@@ -111,21 +124,98 @@ class Link(object):
         self.raw_base = raw_base
 
         self.root_url = get_root_url(self.raw_base)
+        self.full_hyperlink = self.get_full_hyperlink()
 
     def set_base(self, new_base):
         self.raw_base = new_base
         self.root_url = get_root_url(self.raw_base)
+        self.full_hyperlink = self.get_full_hyperlink()
 
+    def set_raw_value(self, new_raw):
+        # This should probably be used only for testing
+        self.raw_value = new_raw
+        self.full_hyperlink = self.get_full_hyperlink()
 
     def get_full_hyperlink(self):
         """
-        :return: A string that is the cleaned hyperlink that can be used to access the html behind it
+        base_url: a string of a url in form of a accessible webpage
+            that is to say base_url is the web page that was succesfully visited and
+            had links extracted from it
+        dirty_link: a string of a url that was extracted from the base_url webpage
+            possible forms for dirty_link include '../[link]', '/[link]', '[link]', all of which
+            are links that refer to the root or base url. It could also be a full link to an
+            external web_page.
+        root_url: a string of a url containing the subdomain followed by the domain of the url,
+            essentially, this url would direct to the top level of the website
         """
-        pass
+        # print("cleaning", dirty_link, "with base", base_url, "with root", root_url)
+        if not self.root_url:
+            raise ValueError("Error, this Link object has no root_url. Cannot make a full_hyperlink.")
+        no_anchor = remove_anchor(self.raw_value)
+        if no_anchor.startswith('http://') or no_anchor.startswith('https://'):
+            return correct_trailing_slash(no_anchor)
+        else:
+            c_base_url = correct_trailing_slash(self.raw_base)
+            c_dirty = correct_trailing_slash(no_anchor)
 
+            while c_dirty.startswith("./"):
+                c_dirty = remove_self_ref(c_dirty)
+            while c_dirty.startswith("../"):
+                c_base_url = up_a_directory(c_base_url)
+                # This is the case where the link is just '../'
+                if len(c_dirty) == 3:  # this could lead to a bug?
+                    return correct_trailing_slash(c_base_url)
+                else:
+                    c_dirty = c_dirty[3:]
+                    # now check for and remove './'
+                    c_dirty = remove_self_ref(c_dirty)
+            while c_dirty.startswith("./"):
+                c_dirty = remove_self_ref(c_dirty)
+
+            if c_dirty.startswith("/"):  # root + extra
+                return correct_trailing_slash(self.root_url + c_dirty[1:])
+            else:
+                return correct_trailing_slash(c_base_url + c_dirty)
 
     def is_html(self):
+        """determines if a url ends with anything other than a directory, .html,
+        .xhtml, or .php, requires a full url"""
+        # BUG: files like https://github.com/rivergillis/crawler/blob/master/crawler.py are still html
+        if self.full_hyperlink.endswith('/'):
+            return True
+
+        good_filetypes = [".html", ".xhtml", ".php"]
+        pattern = re.compile(r'\.\w+\/*')
+        url_tld = get_tld(self.full_hyperlink, fail_silently=True)
+        if not url_tld:
+            return False
+        tld_split = self.full_hyperlink.split(url_tld)
+        if len(tld_split) > 1:
+            after_tld = tld_split[1]
+            extensions = re.findall(pattern, after_tld)
+
+            if not extensions:
+                return True
+            if not after_tld.endswith(extensions[-1]):
+                return True
+            if extensions[-1] not in good_filetypes:
+                return False
+        return True
+
+    def __str__(self):
         """
-        :return: A bool that is True only when the Link contains html (is not an mp4 file, for instance)
+        :return: string representation of the full hyperlink
         """
-        pass
+        return self.full_hyperlink
+
+    def equals_link(self, other, ignore_https=True):
+        """
+        :param other: Link we are comparing to determine if equal
+        :param ignore_https: Links with http are equal to https links if True
+        :return:
+        """
+        if ignore_https:
+            # cut off everything after the http[s] and look at only that part
+            return self.full_hyperlink.split(":", 1)[1] == other.full_hyperlink.split(":", 1)[1]
+        else:
+            return self.full_hyperlink == other.full_hyperlink
