@@ -109,6 +109,12 @@ class TestLinkObjectMethods(unittest.TestCase):
         test_link.set_raw_value(".././foo")
         self.assertEqual(test_link.full_hyperlink, "https://www.rivergillis.co.uk/test/foo/")
 
+    def test_equals_link(self):
+        first = l.Link("index", "http://www.rivergillis.co.uk/test/")
+        second = l.Link("./index", "https://www.rivergillis.co.uk/test/")
+        self.assertFalse(first.equals_link(second, False))
+        self.assertTrue(first.equals_link(second))
+
 
 class TestLinkCrawlerMethods(unittest.TestCase):
 
