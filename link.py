@@ -17,7 +17,7 @@ def remove_anchor(link_string):
     """
     # TODO: return none for empty string after split?
     if not link_string:
-        return None
+        return ''
     return link_string.split("#")[0]
 
 def correct_trailing_slash(link_string):

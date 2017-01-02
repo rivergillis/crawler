@@ -59,5 +59,5 @@ def all_links(input_url):
     return link_objects
 
 if __name__ == "__main__":
-    url = "https://meta.unix.stackexchange.com/"
+    url = "http://twitter.com/stackexchange/"
     all_links(url)

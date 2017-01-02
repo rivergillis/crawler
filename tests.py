@@ -18,7 +18,6 @@ class TestLinkStringFunctions(unittest.TestCase):
         self.assertEqual(l.remove_anchor("http://rivergillis.com/f#anchor_point"), "http://rivergillis.com/f")
         self.assertEqual(l.remove_anchor("#asdf"), "")
         self.assertEqual(l.remove_anchor("asdf#asdf"), "asdf")
-        self.assertIsNone(l.remove_anchor(None))
 
     def test_correct_trailing_slash(self):
         self.assertEqual(l.correct_trailing_slash("/"), "/")
