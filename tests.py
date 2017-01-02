@@ -34,6 +34,7 @@ class TestLinkStringFunctions(unittest.TestCase):
         self.assertEqual(l.correct_trailing_slash("./test#asdf"), "./test/")
         self.assertEqual(l.correct_trailing_slash("./test.html#adsf"), "./test.html")
         self.assertEqual(l.correct_trailing_slash("./"), "./")
+        self.assertEqual(l.correct_trailing_slash("//stackoverflow.com"), "//stackoverflow.com/")
 
     def test_up_a_directory(self):
         self.assertIsNone(l.up_a_directory(None))
@@ -62,6 +63,8 @@ class TestLinkObjectMethods(unittest.TestCase):
         self.assertEqual(test_link.full_hyperlink, "http://rivergillis.com/index.html")
         test_link.set_raw_value("/index#sadf")
         self.assertEqual(test_link.full_hyperlink, "http://rivergillis.com/index/")
+        test_link.set_raw_value("//stackoverflow.com")
+        self.assertEqual(test_link.full_hyperlink, "http://stackoverflow.com/")
 
         # self.assertEqual(c.clean_link(base_url, "../", root_url), ?)
         # self.assertEqual(c.clean_link(base_url, "../../", root_url), ?)
@@ -80,6 +83,8 @@ class TestLinkObjectMethods(unittest.TestCase):
         self.assertEqual(test_link.full_hyperlink, "https://www.rivergillis.co.uk/index.html")
         test_link.set_raw_value("/index#sadf")
         self.assertEqual(test_link.full_hyperlink, "https://www.rivergillis.co.uk/index/")
+        test_link.set_raw_value("//stackoverflow.com")
+        self.assertEqual(test_link.full_hyperlink, "https://stackoverflow.com/")
 
         test_link.set_raw_value("../")
         self.assertEqual(test_link.full_hyperlink, "https://www.rivergillis.co.uk/test/")
@@ -108,6 +113,14 @@ class TestLinkObjectMethods(unittest.TestCase):
         self.assertEqual(test_link.full_hyperlink, "https://www.rivergillis.co.uk/test/foo/")
         test_link.set_raw_value(".././foo")
         self.assertEqual(test_link.full_hyperlink, "https://www.rivergillis.co.uk/test/foo/")
+
+    def test_is_ssl(self):
+        link = l.Link("index", "http://stackoverflow.com/")
+        self.assertFalse(link.is_ssl())
+        link.set_base("https://stackoverflow.com/")
+        self.assertTrue(link.is_ssl())
+        link.set_raw_value("http://rivergillis.com/")
+        self.assertFalse(link.is_ssl())
 
     def test_equals_link(self):
         first = l.Link("index", "http://www.rivergillis.co.uk/test/")

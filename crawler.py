@@ -1,8 +1,6 @@
 from bs4 import BeautifulSoup, SoupStrainer
 from link import Link
-from tld import get_tld
 import requests
-import re
 
 # TODO: cover all cases where a url is empty
 # TODO: create unit testing for these functions
@@ -43,6 +41,7 @@ def all_links(input_url):
                 links.append(str(link['href']))
 
     link_objects = {Link(link_str, input_url) for link_str in links}
+    # Note: this can most likely be faster by doing a set operation on link_objects and have_visited, minus maybe?
     for link in link_objects:
         if link in have_visited:
             continue

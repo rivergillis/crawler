@@ -50,9 +50,10 @@ def correct_trailing_slash(link_string):
     if url_tld:  # form: 'https://rivergillis.com/[anything else]'
         splitted = link_string.split(url_tld.tld)
         before_tld = splitted[0]
-        after_tld = splitted[1]
-        if not after_tld:
+        if len(splitted) <= 1:
             return before_tld + url_tld.tld + '/'
+
+        after_tld = splitted[1]
 
         corrected = correct_rel(after_tld)
         return before_tld + url_tld.tld + corrected
@@ -136,6 +137,17 @@ class Link(object):
         self.raw_value = new_raw
         self.full_hyperlink = self.get_full_hyperlink()
 
+    def is_ssl(self):
+        """
+        :return: True if the full hyperlink begins with https, false otherwise
+        """
+        if self.raw_value.startswith("https"):
+            return True
+        elif self.raw_value.startswith("http"):
+            return False
+        else:
+            return self.raw_base.startswith("https")
+
     def get_full_hyperlink(self):
         """
         base_url: a string of a url in form of a accessible webpage
@@ -157,6 +169,12 @@ class Link(object):
         else:
             c_base_url = correct_trailing_slash(self.raw_base)
             c_dirty = correct_trailing_slash(no_anchor)
+
+            if c_dirty.startswith("//"):
+                if self.is_ssl():
+                    return "https:" + c_dirty
+                else:
+                    return "http:" + c_dirty
 
             while c_dirty.startswith("./"):
                 c_dirty = remove_self_ref(c_dirty)
