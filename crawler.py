@@ -31,7 +31,13 @@ def all_links(input_url):
     # TODO: a valid html link begins with <!DOCTYPE html>
     # TODO: check for if we've visited https or http version (also maybe check for www or not)
     print("--------VISITING", input_url, "----------")
-    response = requests.get(input_url)
+    try:
+        response = requests.get(input_url)
+        # Note: This will be catching an SSL Error
+    except IOError:
+        # Attempt to visit the http instead of https site
+        response = requests.get("http" + input_url[5:])
+
     soup = BeautifulSoup(response.content, "html.parser", parse_only=SoupStrainer('a'))
 
     links = []
@@ -53,5 +59,5 @@ def all_links(input_url):
     return link_objects
 
 if __name__ == "__main__":
-    url = "https://stackoverflow.com/users/34397/slaks/"
+    url = "https://meta.unix.stackexchange.com/"
     all_links(url)
