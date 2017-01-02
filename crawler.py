@@ -6,6 +6,7 @@ import requests
 # TODO: create unit testing for these functions
 # TODO: create a link data type that specifies form and other things
 # TODO: this data can be serialized onto the disc using pickle
+# TODO: Fix for http://miniorange.com/fraud/
 
 
 def move_up_dirs(link, root_url):
@@ -59,5 +60,5 @@ def all_links(input_url):
     return link_objects
 
 if __name__ == "__main__":
-    url = "http://twitter.com/stackexchange/"
+    url = "https://www.reddit.com/"
     all_links(url)
