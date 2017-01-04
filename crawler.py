@@ -1,5 +1,6 @@
 from link import Link
 from page import Page
+import operator
 
 # TODO: this data can be serialized onto the disc using pickle
 # TODO: Fix for http://miniorange.com/fraud/
@@ -10,6 +11,18 @@ page_counts = {}   # page_counts contains the number of times a certain page has
 pages_by_links = {}  # pages_by_links has a page object for a corresponding link object (Link -> Page)
 
 
+def create_log():
+    logfile = open("logfile", 'w')
+
+    sorted_counts = sorted(page_counts.items(), key=operator.itemgetter(1), reverse=True)
+
+    for page, pcount in sorted_counts:
+        logfile.write(str(page))
+        logfile.write("Has been visited " + str(pcount) + " times\n\n")
+
+    logfile.close()
+
+
 def begin_crawl(input_url):
     """
     calls crawl and maintains calling it in a while loop, keeping track of the # of links grabbed
@@ -17,11 +30,15 @@ def begin_crawl(input_url):
     :return: the length of the crawl, the number of links grabbed (that were unique on a per-page basis)
     """
     crawl_length = 0
+    create_log()
     grabbed_links.append(Link(input_url, "http://www.rivergillis.com/"))
     while grabbed_links:
         crawl()
         crawl_length += 1
         print("crawl length is now", crawl_length)
+        if crawl_length == 200:
+            create_log()
+            return crawl_length
 
     return crawl_length
 
@@ -57,6 +74,7 @@ def crawl():
     grabbed_links.extend(current_page.links)
     print("This page has", len(current_page.links), "links, we've now got", len(grabbed_links), "total links")
     return
+
 
 if __name__ == "__main__":
     url = "https://reddit.com/"
