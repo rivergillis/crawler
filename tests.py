@@ -140,14 +140,15 @@ class TestPageMethods(unittest.TestCase):
         # This test is very slow
         page = p.Page("http://rivergillis.com/about/")
         correct_link_str = {"http://rivergillis.com/", "http://rivergillis.com/about/", "http://rivergillis.com/posts/",
-                         "http://rivergillis.com/feed.xml",
-                         "https://github.com/rivergillis", "https://twitter.com/rivergillis",
-                         "http://rivergillis.com/resume.pdf"}
+                            "http://rivergillis.com/feed.xml",
+                            "https://github.com/rivergillis", "https://twitter.com/rivergillis",
+                            "http://rivergillis.com/resume.pdf"}
         correct_links = set()
         for link in correct_link_str:
             correct_links.add(l.Link(link, "http://rivergillis.com/about/"))
 
         self.assertEqual(page.get_links(), correct_links)
+
 
 class TestLinkCrawlerMethods(unittest.TestCase):
 

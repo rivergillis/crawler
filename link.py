@@ -128,12 +128,13 @@ class Link(object):
         self.full_hyperlink = self.get_full_hyperlink()
 
     def set_base(self, new_base):
+        # This should only be used for testing, will mess up the object's hash
         self.raw_base = new_base
         self.root_url = get_root_url(self.raw_base)
         self.full_hyperlink = self.get_full_hyperlink()
 
     def set_raw_value(self, new_raw):
-        # This should probably be used only for testing
+        # This should be used only for testing
         self.raw_value = new_raw
         self.full_hyperlink = self.get_full_hyperlink()
 

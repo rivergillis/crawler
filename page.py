@@ -9,6 +9,9 @@ class Page(object):
         self.full_hyperlink = full_hyperlink
         self.links = links
 
+        if not self.links:
+            self.create_links()
+
         # This doesn't feel great, maybe pull root_url creation method out of Link?
         self.domain = Link("#null", self.full_hyperlink).root_url
 
@@ -16,8 +19,7 @@ class Page(object):
         return self.full_hyperlink
 
     def get_links(self):
-        if not self.links:
-            self.create_links()
+        # This could possibly become slow for large pages with no links
         return self.links
 
     def create_links(self):
@@ -40,7 +42,9 @@ class Page(object):
                 if not (link['href'].startswith("#")):
                     links.append(str(link['href']))
 
-        self.links = {Link(link_str, self.full_hyperlink) for link_str in links if not link_str.startswith("mailto:")}
+        # needs to be a frozenset so that we can hash a Page using these links
+        nonfrozen = {Link(link_str, self.full_hyperlink) for link_str in links if not link_str.startswith("mailto:")}
+        self.links= frozenset(nonfrozen)
 
     def __str__(self):
         links_buffer = ""
@@ -48,3 +52,12 @@ class Page(object):
             for link in self.links:
                 links_buffer += link.full_hyperlink + "\n"
         return "Page at " + self.full_hyperlink + " with links:\n" + links_buffer
+
+    def __hash__(self):
+        return hash(self.links)
+
+    def __eq__(self, other):
+        return self.links == other.links
+
+    def __ne__(self, other):
+        return not(self.links == other.links)
