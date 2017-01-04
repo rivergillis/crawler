@@ -93,7 +93,8 @@ def up_a_directory(link_string):
     if not link_string:
         return None
     if link_string == get_root_url(link_string):
-        raise ValueError(link_string, " is the same as its base and thus cannot move up a dir")
+        return link_string
+        # raise ValueError(link_string, " is the same as its base and thus cannot move up a dir")
     removed_dir = link_string.rsplit('/', 2)[0] + '/'
     return removed_dir
 

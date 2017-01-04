@@ -44,7 +44,7 @@ class Page(object):
 
         # needs to be a frozenset so that we can hash a Page using these links
         nonfrozen = {Link(link_str, self.full_hyperlink) for link_str in links if not link_str.startswith("mailto:")
-                     and not link_str.startswith("?")}
+                     and not "?" in link_str}
         self.links = frozenset(nonfrozen)
 
     def __str__(self):

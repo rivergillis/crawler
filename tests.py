@@ -65,6 +65,8 @@ class TestLinkObjectMethods(unittest.TestCase):
         self.assertEqual(test_link.full_hyperlink, "http://rivergillis.com/index/")
         test_link.set_raw_value("//stackoverflow.com")
         self.assertEqual(test_link.full_hyperlink, "http://stackoverflow.com/")
+        test_link.set_raw_value("/")
+        self.assertEqual(test_link.full_hyperlink, "http://rivergillis.com/")
 
         # self.assertEqual(c.clean_link(base_url, "../", root_url), ?)
         # self.assertEqual(c.clean_link(base_url, "../../", root_url), ?)

@@ -36,7 +36,7 @@ def begin_crawl(input_url):
         crawl()
         crawl_length += 1
         print("crawl length is now", crawl_length)
-        if crawl_length == 200:
+        if crawl_length == 1000:
             create_log()
             return crawl_length
 
@@ -77,5 +77,5 @@ def crawl():
 
 
 if __name__ == "__main__":
-    url = "https://reddit.com/"
+    url = "https://news.ycombinator.com"
     begin_crawl(url)
