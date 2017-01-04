@@ -7,6 +7,7 @@ import requests
 # TODO: create a link data type that specifies form and other things
 # TODO: this data can be serialized onto the disc using pickle
 # TODO: Fix for http://miniorange.com/fraud/
+# TODO: Make a page object, this object contains a set of links from that page, if two pages on a domain have the same set of links (use set minus), stop and drop the page
 
 
 def move_up_dirs(link, root_url):
@@ -18,6 +19,7 @@ def move_up_dirs(link, root_url):
     pass
 
 have_visited = set()
+depth = 0
 
 
 def all_links(input_url):
@@ -31,7 +33,11 @@ def all_links(input_url):
     
     # TODO: a valid html link begins with <!DOCTYPE html>
     # TODO: check for if we've visited https or http version (also maybe check for www or not)
+    global depth
+    depth += 1
+
     print("--------VISITING", input_url, "----------")
+    print("recursion depth", depth)
     try:
         response = requests.get(input_url)
         # Note: This will be catching an SSL Error
@@ -57,8 +63,9 @@ def all_links(input_url):
         all_links(link.full_hyperlink)
 
     print("now returning")
+    depth -= 1
     return link_objects
 
 if __name__ == "__main__":
-    url = "https://www.reddit.com/"
+    url = "http://miniorange.com/fraud/"
     all_links(url)
