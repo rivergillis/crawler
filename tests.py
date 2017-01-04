@@ -1,6 +1,7 @@
 import unittest
 import crawler as c
 import link as l
+import page as p
 
 
 class TestLinkStringFunctions(unittest.TestCase):
@@ -127,6 +128,26 @@ class TestLinkObjectMethods(unittest.TestCase):
         self.assertFalse(first.equals_link(second, False))
         self.assertTrue(first.equals_link(second))
 
+
+class TestPageMethods(unittest.TestCase):
+    # These will fail if I update the about me page
+
+    def test_page_creation(self):
+        page = p.Page("http://rivergillis.com/about/")
+        self.assertEqual(page.domain, "http://rivergillis.com/")
+
+    def test_page_create_links(self):
+        # This test is very slow
+        page = p.Page("http://rivergillis.com/about/")
+        correct_link_str = {"http://rivergillis.com/", "http://rivergillis.com/about/", "http://rivergillis.com/posts/",
+                         "http://rivergillis.com/feed.xml",
+                         "https://github.com/rivergillis", "https://twitter.com/rivergillis",
+                         "http://rivergillis.com/resume.pdf"}
+        correct_links = set()
+        for link in correct_link_str:
+            correct_links.add(l.Link(link, "http://rivergillis.com/about/"))
+
+        self.assertEqual(page.get_links(), correct_links)
 
 class TestLinkCrawlerMethods(unittest.TestCase):
 

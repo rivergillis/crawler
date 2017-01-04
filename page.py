@@ -40,4 +40,11 @@ class Page(object):
                 if not (link['href'].startswith("#")):
                     links.append(str(link['href']))
 
-        self.links = {Link(link_str, self.full_hyperlink) for link_str in links}
+        self.links = {Link(link_str, self.full_hyperlink) for link_str in links if not link_str.startswith("mailto:")}
+
+    def __str__(self):
+        links_buffer = ""
+        if self.links:
+            for link in self.links:
+                links_buffer += link.full_hyperlink + "\n"
+        return "Page at " + self.full_hyperlink + " with links:\n" + links_buffer
