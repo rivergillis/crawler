@@ -28,7 +28,11 @@ class Page(object):
         :return: a set of Link objects
         """
         try:
-            response = requests.get(self.full_hyperlink)
+            response = requests.get(self.full_hyperlink, timeout=1)
+        except requests.exceptions.Timeout:
+            print("Page at", self.full_hyperlink, "has timed out!")
+            return  # Note: self.links will now be None (causing the hash to be the same for all None'd pages)
+
             # Note: This will be catching an SSL Error
         except IOError:
             # Attempt to visit the http instead of https site

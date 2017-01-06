@@ -36,7 +36,7 @@ def begin_crawl(input_url):
         crawl()
         crawl_length += 1
         print("crawl length is now", crawl_length)
-        if crawl_length == 1000:
+        if crawl_length == 500:
             create_log()
             return crawl_length
 
@@ -70,6 +70,9 @@ def crawl():
     # Updates the page_counts
     page_counts[current_page] = 1
 
+    if not current_page.links:  # In the case of a timeout
+        return
+
     # updates the grabbed_links
     grabbed_links.extend(current_page.links)
     print("This page has", len(current_page.links), "links, we've now got", len(grabbed_links), "total links")
@@ -77,5 +80,5 @@ def crawl():
 
 
 if __name__ == "__main__":
-    url = "https://news.ycombinator.com"
+    url = "https://reddit.com"
     begin_crawl(url)
